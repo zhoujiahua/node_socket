@@ -17,12 +17,16 @@ app.engine('html', ejs.__express);
 app.set("view engine", "html");
 
 app.get('/', (req, res) => {
-    res.send('hi socket...');
+    res.render("index", {
+        title: 'Hone Page'
+    });
 })
 
-app.get("/index", (req, res) => {
-    res.render("index", {
-        title: 'Hi'
+app.get("/vmpage", (req, res) => {
+    let r = req.query;
+    console.log(r);
+    res.render("vmpage", {
+        title: 'VM Page'
     });
 });
 
