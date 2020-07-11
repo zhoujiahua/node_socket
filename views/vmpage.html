@@ -10,12 +10,15 @@
 
 <body>
     <div class="layui-container">
-        <div class="layui-btn-container">
-            <div id="text"></div>
-            <button type="button" class="layui-btn layui-btn-lg layui-btn-normal" id="start">VM START</button>
-            <button type="button" class="layui-btn layui-btn-lg layui-btn-danger" id="stop">VM SOTP</button>
-            <button type="button" class="layui-btn layui-btn-lg layui-btn" id="view">VM VIEW</button>
+        <div class="vm-text">
+            <!-- <h6>当前用户没有虚拟机，请联系管理员进行创建。</h6> -->
+            <!-- <div class="layui-btn-container">
+                <button type="button" class="layui-btn layui-btn-lg layui-btn-normal" id="start">VM START</button>
+                <button type="button" class="layui-btn layui-btn-lg layui-btn-danger" id="stop">VM SOTP</button>
+                <button type="button" class="layui-btn layui-btn-lg layui-btn" id="view">VM VIEW</button>
+            </div> -->
         </div>
+
     </div>
 
     <script src="/lib/layui/layui.js"></script>
@@ -26,6 +29,35 @@
                 form = layui.form,
                 $ = layui.$;
             var socket = io.connect('ws://192.168.0.5:3000');
+            socket.on('users', function (data) {
+                console.log(data);
+                if (data.vm) {
+                    // $(".vm-text").html(JSON.stringify(data));
+                    if (data.vm.state) {
+                        var htmlb =  `<div class="layui-btn-container">
+                        <button type="button" class="layui-btn layui-btn-lg layui-btn-danger" id="stop">VM SOTP</button>
+                        <button type="button" class="layui-btn layui-btn-lg layui-btn" id="view">VM VIEW</button></div>`
+                        $(".vm-text").html(htmlb);
+                        $("#stop").on('click',function(){
+                            data.vm.state = false;
+                            socket.emit('vmctrl',data);
+                        })
+                    }else{
+                        var htmla = `<div class="layui-btn-container">
+                            <button type="button" class="layui-btn layui-btn-lg layui-btn-normal" id="start">VM START</button></div>`
+                        $(".vm-text").html(htmla);
+                        $("#start").on('click',function(){
+                            data.vm.state = true;
+                            socket.emit('vmctrl',data);
+                        })
+                    }
+                } else {
+                    $(".vm-text").html('<h6>当前用户没有虚拟机，请联系管理员进行创建。</>');
+                }
+            })
+
+
+
             socket.on('servermessage', function (data) {
                 console.log(data);
             })

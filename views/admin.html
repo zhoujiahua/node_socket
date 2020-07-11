@@ -4,43 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title><%= title %></title>
     <link rel="stylesheet" href="/lib/layui/css/layui.css">
+    <style>
+        .btn-bar {
+            padding-top: 30px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1> <%=title %> </h1>
     <div class="layui-container">
-        <form class="layui-form" action="">
-            <div class="layui-form-item">
-                <label class="layui-form-label">用户：</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="username" required lay-verify="required" placeholder="请输入标题"
-                        autocomplete="off" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">辅助文字</div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">密码：</label>
-                <div class="layui-input-inline">
-                    <input type="password" name="password" required lay-verify="required" placeholder="请输入密码"
-                        autocomplete="off" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">辅助文字</div>
-            </div>
-            <div class="layui-form-item layui-form-text">
-                <label class="layui-form-label">文本域</label>
-                <div class="layui-input-block">
-                    <textarea name="desc" placeholder="请输入内容" class="layui-textarea"></textarea>
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <div class="layui-input-block">
-                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                </div>
-            </div>
-        </form>
+        <div class="btn-bar">
+            <button type="button" class="create layui-btn layui-btn-sm layui-btn">CREATE</button>
+        </div>
+        <table class="layui-table">
+            <colgroup>
+                <col width="150">
+                <col width="200">
+                <col>
+                <col width="200">
+                <col width="200">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>USERNAME</th>
+                    <th>EMAIl</th>
+                    <th>VM</th>
+                    <th>CONTROL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i = 0; i < data.length; i++) {%>
+                <tr>
+                    <td> <%= data[i].id %> </td>
+                    <td> <%= data[i].username %> </td>
+                    <td> <%= data[i].email %> </td>
+                    <% if (data[i].vm) { %>
+                    <td> <%= data[i].vm.state ? 'start' : 'stop'  %> </td>
+                    <% }else{ %>
+                    <td> no </td>
+                    <% } %>
+                    <td>
+                        <button type="button" class="update layui-btn layui-btn-sm layui-btn-normal"
+                            data-item="<%= JSON.stringify(data[i]) %>">UPDATE</button>
+                        <button type="button" class="delete layui-btn layui-btn-sm layui-btn-danger"
+                            data-item="<%= JSON.stringify(data[i]) %>">DELETE</button>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
     </div>
 
     <script src="/lib/layui/layui.js"></script>
@@ -51,18 +66,14 @@
                 form = layui.form,
                 $ = layui.$;
             var socket = io.connect('ws://192.168.0.5:3000');
+            $('.delete').on('click', function () {
+                var data = JSON.parse($(this).attr('data-item'));
+                data.vm = {};
+                socket.emit('vmctrl', data);
+            })
             socket.on('servermessage', function (data) {
                 console.log(data);
             })
-
-            // submit
-            form.on('submit(formDemo)', function (data) {
-                // layer.msg(JSON.stringify(data.field));
-                var d = data.field;
-                socket.emit('message', d);
-                return false;
-            });
-
         })
     </script>
 </body>
